@@ -243,6 +243,7 @@
       life: 3,
       level: 1,
       running: false,
+      paused: false,
       gameOver: false,
       elapsed: 0,
       speedMultiplier: 1,
@@ -321,8 +322,35 @@
     function startGame() {
       overlay.classList.remove('active');
       state.running = true;
+      state.paused = false;
       state.lastTime = performance.now();
       resetGame();
+      loop(state.lastTime);
+    }
+
+    function pauseGame() {
+      if (!state.running || state.gameOver) return;
+      state.running = false;
+      state.paused = true;
+      overlay.innerHTML = `
+        <div>
+          <h2>Pauset</h2>
+          <p>Spillet er pausert. Velg om du vil fortsette eller starte på nytt.</p>
+          <button id="continueButton">Fortsett</button>
+          <button id="restartButton">Restart</button>
+        </div>
+      `;
+      overlay.classList.add('active');
+      document.getElementById('continueButton').addEventListener('click', resumeGame);
+      document.getElementById('restartButton').addEventListener('click', startGame);
+    }
+
+    function resumeGame() {
+      if (!state.paused) return;
+      overlay.classList.remove('active');
+      state.running = true;
+      state.paused = false;
+      state.lastTime = performance.now();
       loop(state.lastTime);
     }
 
@@ -724,6 +752,13 @@
       state.keys[event.key] = true;
       if (event.key === ' ' && state.gameOver) {
         startGame();
+      }
+      if (event.key === 'Escape') {
+        if (state.running && !state.gameOver) {
+          pauseGame();
+        } else if (state.paused) {
+          resumeGame();
+        }
       }
       if (event.key.toLowerCase() === 'q' && state.running && !state.gameOver) {
         triggerUlt();
