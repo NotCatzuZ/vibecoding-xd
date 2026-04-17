@@ -441,8 +441,8 @@
       else if (typeRoll < 0.42) type = 'purple';
 
       const size = type === 'yellow' ? 20 + Math.random() * 8 : type === 'purple' ? 12 + Math.random() * 6 : 10 + Math.random() * 12;
-      const baseSpeed = type === 'yellow' ? 90 : type === 'purple' ? 260 + state.speedMultiplier * 40 : 140 + Math.random() * 140 + state.speedMultiplier * 30;
-      const damage = type === 'yellow' ? 2 : type === 'purple' ? 0.5 : 1;
+      const baseSpeed = type === 'yellow' ? 90 : type === 'purple' ? 200 + Math.random() * 200 + state.speedMultiplier * 40 : 140 + Math.random() * 140 + state.speedMultiplier * 30;
+      const damage = type === 'yellow' ? 4 : type === 'purple' ? 0.5 : 1;
       let x = canvas.width + size;
       let y = size + Math.random() * (canvas.height - size * 2);
       let vx = -baseSpeed;
@@ -453,12 +453,12 @@
         x = canvas.width + size;
         y = size + Math.random() * (canvas.height - size * 2);
         vx = -baseSpeed;
-        vy = type === 'purple' ? randomRange(-120, 120) : 0;
+        vy = type === 'purple' ? randomRange(-180, 180) : 0;
       } else if (side === 1) {
         x = -size;
         y = size + Math.random() * (canvas.height - size * 2);
         vx = baseSpeed;
-        vy = type === 'purple' ? randomRange(-120, 120) : 0;
+        vy = type === 'purple' ? randomRange(-180, 180) : 0;
       } else if (side === 2) {
         x = size + Math.random() * (canvas.width - size * 2);
         y = -size;
