@@ -200,9 +200,9 @@
         <div id="overlay" class="overlay active">
           <div>
             <h2>Start kampen</h2>
-            <p>Styr den bærbare PC-en. Unngå rødt vann, gule virus og lilla hamre fra alle sider. Samle grønne verktøy for å bygge ult.</p>
+            <p>Styr den bærbare PC-en. Unngå blått vann, lilla virus og gule hamre fra alle sider. Samle grønne oppdateringer for å bygge ult.</p>
             <button id="startButton">Start spill</button>
-            <small>Ult lades ved avoiding og verktøy. Trykk Q når den er full for å rydde fiender rundt deg.</small>
+            <small>Ult lades ved avoiding og oppdateringer. Trykk Q når den er full for å rydde fiender rundt deg.</small>
           </div>
         </div>
       </div>
@@ -220,7 +220,7 @@
       </div>
       <div class="controls">
         <div><strong>Styring:</strong> ← → ↑ ↓ / A D W S</div>
-        <div><strong>Mål:</strong> Unngå vann, virus og hamre fra alle sider. Samle verktøy og bruk Q for ult.</div>
+        <div><strong>Mål:</strong> Unngå vann, virus og hamre fra alle sider. Samle oppdateringer og bruk Q for ult.</div>
       </div>
     </div>
   </div>
@@ -675,11 +675,11 @@
       state.lastTime = time;
       state.elapsed += delta;
       state.score = Math.floor(state.elapsed * 20);
-      state.level = Math.min(5, Math.floor(state.elapsed / 10) + 1);
-      state.speedMultiplier = 1 + (state.level - 1) * 0.32;
+      state.level = Math.min(10, Math.floor(state.elapsed / 8) + 1);
+      state.speedMultiplier = 1 + (state.level - 1) * 0.4;
 
-      if (Math.random() < 0.017 + state.level * 0.006) spawnEnemy();
-      if (Math.random() < 0.008 + state.level * 0.002) spawnHeal();
+      if (Math.random() < 0.015 + state.level * 0.008 + Math.min(state.elapsed / 100, 0.05)) spawnEnemy();
+      if (Math.random() < 0.006 + state.level * 0.003) spawnHeal();
 
       updatePlayer(delta);
       updateEntities(delta);
