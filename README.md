@@ -34,6 +34,8 @@ Et actionfylt spill hvor du styrer en bærbar PC og unngår fiender mens du saml
 
 Spillet er deployet via GitHub Pages og kan spilles direkte i nettleseren på: [https://notcatzuz.github.io/vibecoding-xd/](https://notcatzuz.github.io/vibecoding-xd/)
 
+**Spill det her:** [https://notcatzuz.github.io/vibecoding-xd/](https://notcatzuz.github.io/vibecoding-xd/)
+
 ## Utvikling
 
 Bygget med ren HTML5, CSS3 og JavaScript ES6+.
