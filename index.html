@@ -437,7 +437,7 @@
       if (typeRoll < 0.18) type = 'yellow';
       else if (typeRoll < 0.42) type = 'purple';
 
-      const size = type === 'yellow' ? 16 + Math.random() * 6 : type === 'purple' ? 12 + Math.random() * 6 : 10 + Math.random() * 12;
+      const size = type === 'yellow' ? 20 + Math.random() * 8 : type === 'purple' ? 12 + Math.random() * 6 : 10 + Math.random() * 12;
       const baseSpeed = type === 'yellow' ? 90 : type === 'purple' ? 260 + state.speedMultiplier * 40 : 140 + Math.random() * 140 + state.speedMultiplier * 30;
       const damage = type === 'yellow' ? 2 : type === 'purple' ? 0.5 : 1;
       let x = canvas.width + size;
@@ -473,7 +473,7 @@
         y,
         size,
         speed: baseSpeed,
-        color: type === 'yellow' ? '#a86aff' : type === 'purple' ? '#f4c850' : '#ff3d3d',
+        color: type === 'yellow' ? '#a86aff' : type === 'purple' ? '#f4c850' : '#3d9eff',
         type,
         damage,
         vx,
@@ -687,7 +687,7 @@
 
       // Decrease life if no green tool collected for 8 seconds
       if (state.elapsed - state.lastHealTime > 8) {
-        state.life = Math.max(0, state.life - delta * 0.2); // Lose 0.2 life per second
+        state.life = Math.max(0, state.life - delta * 0.8); // Lose 0.8 life per second
       }
 
       state.avoidTime += delta;
