@@ -267,10 +267,13 @@
     };
 
     function loadHighscores() {
-      const saved = localStorage.getItem('vibecoding-highscores');
-      if (saved) {
-        state.highscores = JSON.parse(saved);
-      }
+      // Reset highscores
+      state.highscores = [];
+      localStorage.removeItem('vibecoding-highscores');
+      // const saved = localStorage.getItem('vibecoding-highscores');
+      // if (saved) {
+      //   state.highscores = JSON.parse(saved);
+      // }
     }
 
     function saveHighscores() {
@@ -407,7 +410,7 @@
 
     function triggerUlt() {
       if (state.ultCharge < 100) return;
-      const radius = 180;
+      const radius = 280;
       let killed = 0;
       state.enemies = state.enemies.filter(enemy => {
         const dx = enemy.x - player.x;
@@ -420,7 +423,7 @@
       });
       if (killed > 0) {
         playUltSound();
-        state.score += killed * 40;
+        state.score += killed * 60;
       }
       state.ultCharge = 0;
       state.damageFlash = 0.4;
