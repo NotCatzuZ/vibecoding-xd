@@ -473,7 +473,7 @@
         y,
         size,
         speed: baseSpeed,
-        color: type === 'yellow' ? '#f4c850' : type === 'purple' ? '#f4c850' : '#ff3d3d',
+        color: type === 'yellow' ? '#a86aff' : type === 'purple' ? '#f4c850' : '#ff3d3d',
         type,
         damage,
         vx,
@@ -549,25 +549,25 @@
     function drawEnemies() {
       state.enemies.forEach(enemy => {
         if (enemy.type === 'yellow') {
-          // Small sun with rays
+          // Purple virus with spikes
           ctx.fillStyle = enemy.color;
           ctx.beginPath();
-          ctx.arc(enemy.x, enemy.y, enemy.size * 0.6, 0, Math.PI * 2);
+          ctx.arc(enemy.x, enemy.y, enemy.size * 0.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(enemy.x, enemy.y, enemy.size * 0.6, 0, Math.PI * 2);
+          ctx.arc(enemy.x, enemy.y, enemy.size * 0.5, 0, Math.PI * 2);
           ctx.stroke();
-          // Sun rays
+          // Virus spikes
           ctx.strokeStyle = enemy.color;
-          ctx.lineWidth = 3;
-          for (let i = 0; i < 8; i++) {
-            const angle = (Math.PI * 2 * i) / 8;
-            const sx = enemy.x + Math.cos(angle) * (enemy.size * 0.8);
-            const sy = enemy.y + Math.sin(angle) * (enemy.size * 0.8);
-            const ex = enemy.x + Math.cos(angle) * (enemy.size * 1.2);
-            const ey = enemy.y + Math.sin(angle) * (enemy.size * 1.2);
+          ctx.lineWidth = 2;
+          for (let i = 0; i < 12; i++) {
+            const angle = (Math.PI * 2 * i) / 12;
+            const sx = enemy.x + Math.cos(angle) * (enemy.size * 0.5);
+            const sy = enemy.y + Math.sin(angle) * (enemy.size * 0.5);
+            const ex = enemy.x + Math.cos(angle) * (enemy.size * 0.8);
+            const ey = enemy.y + Math.sin(angle) * (enemy.size * 0.8);
             ctx.beginPath();
             ctx.moveTo(sx, sy);
             ctx.lineTo(ex, ey);
@@ -738,6 +738,9 @@
 
     loadHighscores();
     updateUI();
+
+    // Auto-start the game
+    startGame();
   </script>
 </body>
 </html>
