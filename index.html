@@ -153,6 +153,43 @@
     .controls strong {
       color: #f8f9ff;
     }
+    .highscore-list {
+      margin-top: 20px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .highscore-list h3 {
+      margin-bottom: 12px;
+      color: #f8f9ff;
+      font-size: 1.2rem;
+    }
+    .highscore-list ol {
+      list-style: decimal;
+      padding-left: 20px;
+    }
+    .highscore-list li {
+      margin-bottom: 4px;
+      color: #aac2ff;
+    }
+    .name-input {
+      margin: 16px 0;
+    }
+    .name-input input {
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1rem;
+      width: 200px;
+      text-align: center;
+    }
+    .name-input input:focus {
+      outline: none;
+      border-color: #49a3ff;
+    }
   </style>
 </head>
 <body>
@@ -163,7 +200,7 @@
         <div id="overlay" class="overlay active">
           <div>
             <h2>Start kampen</h2>
-            <p>Styr den bærbare PC-en. Unngå rødt vann, gule virus og lilla hamre. Samle grønne verktøy for å bygge ult.</p>
+            <p>Styr den bærbare PC-en. Unngå rødt vann, gule virus og lilla hamre fra alle sider. Samle grønne verktøy for å bygge ult.</p>
             <button id="startButton">Start spill</button>
             <small>Ult lades ved avoiding og verktøy. Trykk Q når den er full for å rydde fiender rundt deg.</small>
           </div>
@@ -183,7 +220,7 @@
       </div>
       <div class="controls">
         <div><strong>Styring:</strong> ← → ↑ ↓ / A D W S</div>
-        <div><strong>Mål:</strong> Unngå fiender, treff helser, og bruk Q for ult når meteret er fullt.</div>
+        <div><strong>Mål:</strong> Unngå vann, virus og hamre fra alle sider. Samle verktøy og bruk Q for ult.</div>
       </div>
     </div>
   </div>
@@ -216,7 +253,9 @@
       ultCharge: 0,
       avoidTime: 0,
       damageFlash: 0,
-      screenShake: 0
+      screenShake: 0,
+      highscores: [],
+      lastHealTime: 0
     };
 
     const player = {
@@ -226,6 +265,24 @@
       speed: 320,
       color: '#bed6ff'
     };
+
+    function loadHighscores() {
+      const saved = localStorage.getItem('vibecoding-highscores');
+      if (saved) {
+        state.highscores = JSON.parse(saved);
+      }
+    }
+
+    function saveHighscores() {
+      localStorage.setItem('vibecoding-highscores', JSON.stringify(state.highscores));
+    }
+
+    function addHighscore(name, score) {
+      state.highscores.push({ name, score });
+      state.highscores.sort((a, b) => b.score - a.score);
+      state.highscores = state.highscores.slice(0, 10); // Keep top 10
+      saveHighscores();
+    }
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -252,6 +309,7 @@
       state.avoidTime = 0;
       state.damageFlash = 0;
       state.screenShake = 0;
+      state.lastHealTime = 0;
       player.x = 150;
       player.y = canvas.height / 2;
       updateUI();
@@ -268,16 +326,40 @@
     function endGame() {
       state.running = false;
       state.gameOver = true;
+
+      // Update best score
+      if (state.score > state.best) {
+        state.best = state.score;
+      }
+
+      // Check if score qualifies for highscore
+      const isHighscore = state.highscores.length < 10 || state.score > state.highscores[state.highscores.length - 1].score;
+
+      const highscoreList = state.highscores.map((hs, i) => `<li>${i + 1}. ${hs.name}: ${hs.score}</li>`).join('');
+
       overlay.innerHTML = `
         <div>
           <h2>Spill over</h2>
           <p>Score: <strong>${state.score}</strong><br>Høyeste score: <strong>${state.best}</strong></p>
+          ${isHighscore ? '<div class="name-input"><input type="text" id="playerName" placeholder="Ditt navn" maxlength="20"></div>' : ''}
           <button id="restartButton">Spill igjen</button>
+          <div class="highscore-list">
+            <h3>Highscores</h3>
+            <ol>${highscoreList || '<li>Ingen highscores enda</li>'}</ol>
+          </div>
           <small>Trykk start igjen for en ny runde.</small>
         </div>
       `;
       overlay.classList.add('active');
-      document.getElementById('restartButton').addEventListener('click', startGame);
+
+      const restartButton = document.getElementById('restartButton');
+      restartButton.addEventListener('click', () => {
+        const nameInput = document.getElementById('playerName');
+        if (nameInput && nameInput.value.trim()) {
+          addHighscore(nameInput.value.trim(), state.score);
+        }
+        startGame();
+      });
     }
 
     function updateUI() {
@@ -355,14 +437,14 @@
       if (typeRoll < 0.18) type = 'yellow';
       else if (typeRoll < 0.42) type = 'purple';
 
-      const size = type === 'yellow' ? 24 + Math.random() * 10 : type === 'purple' ? 12 + Math.random() * 6 : 10 + Math.random() * 12;
+      const size = type === 'yellow' ? 16 + Math.random() * 6 : type === 'purple' ? 12 + Math.random() * 6 : 10 + Math.random() * 12;
       const baseSpeed = type === 'yellow' ? 90 : type === 'purple' ? 260 + state.speedMultiplier * 40 : 140 + Math.random() * 140 + state.speedMultiplier * 30;
       const damage = type === 'yellow' ? 2 : type === 'purple' ? 0.5 : 1;
       let x = canvas.width + size;
       let y = size + Math.random() * (canvas.height - size * 2);
       let vx = -baseSpeed;
       let vy = 0;
-      const side = type === 'purple' ? Math.floor(randomRange(0, 4)) : Math.random() < 0.7 ? 0 : Math.floor(randomRange(2, 4));
+      const side = Math.floor(randomRange(0, 4)); // All enemy types can spawn from any side
 
       if (side === 0) {
         x = canvas.width + size;
@@ -391,7 +473,7 @@
         y,
         size,
         speed: baseSpeed,
-        color: type === 'yellow' ? '#f4c850' : type === 'purple' ? '#a86aff' : '#ff3d3d',
+        color: type === 'yellow' ? '#f4c850' : type === 'purple' ? '#f4c850' : '#ff3d3d',
         type,
         damage,
         vx,
@@ -467,40 +549,59 @@
     function drawEnemies() {
       state.enemies.forEach(enemy => {
         if (enemy.type === 'yellow') {
+          // Small sun with rays
           ctx.fillStyle = enemy.color;
           ctx.beginPath();
-          ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+          ctx.arc(enemy.x, enemy.y, enemy.size * 0.6, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(enemy.x, enemy.y, enemy.size * 0.7, 0, Math.PI * 2);
+          ctx.arc(enemy.x, enemy.y, enemy.size * 0.6, 0, Math.PI * 2);
           ctx.stroke();
-          for (let i = 0; i < 10; i++) {
-            const angle = (Math.PI * 2 * i) / 10;
-            const sx = enemy.x + Math.cos(angle) * (enemy.size + 2);
-            const sy = enemy.y + Math.sin(angle) * (enemy.size + 2);
-            ctx.fillRect(sx - 2, sy - 2, 4, 4);
+          // Sun rays
+          ctx.strokeStyle = enemy.color;
+          ctx.lineWidth = 3;
+          for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 * i) / 8;
+            const sx = enemy.x + Math.cos(angle) * (enemy.size * 0.8);
+            const sy = enemy.y + Math.sin(angle) * (enemy.size * 0.8);
+            const ex = enemy.x + Math.cos(angle) * (enemy.size * 1.2);
+            const ey = enemy.y + Math.sin(angle) * (enemy.size * 1.2);
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+            ctx.stroke();
           }
         } else if (enemy.type === 'purple') {
+          // Yellow hammer
           ctx.save();
           ctx.translate(enemy.x, enemy.y);
           ctx.rotate((enemy.vx || -1) * 0.01);
           ctx.fillStyle = enemy.color;
           ctx.fillRect(-enemy.size * 1.4, -enemy.size * 0.45, enemy.size * 1.8, enemy.size * 0.9);
-          ctx.fillStyle = '#6b3bb0';
+          ctx.fillStyle = '#d4a74c';
           ctx.fillRect(-enemy.size * 0.12, enemy.size * 0.35, enemy.size * 0.24, enemy.size * 1.25);
           ctx.restore();
         } else {
+          // Wave-like shape for red
           ctx.fillStyle = enemy.color;
           ctx.beginPath();
-          ctx.moveTo(enemy.x, enemy.y - enemy.size);
-          ctx.quadraticCurveTo(enemy.x + enemy.size, enemy.y + enemy.size * 0.2, enemy.x, enemy.y + enemy.size * 1.4);
-          ctx.quadraticCurveTo(enemy.x - enemy.size, enemy.y + enemy.size * 0.2, enemy.x, enemy.y - enemy.size);
+          const waveHeight = enemy.size * 0.8;
+          const waveWidth = enemy.size * 2;
+          ctx.moveTo(enemy.x - waveWidth/2, enemy.y);
+          for (let i = 0; i <= waveWidth; i += 4) {
+            const x = enemy.x - waveWidth/2 + i;
+            const y = enemy.y + Math.sin((i / waveWidth) * Math.PI * 2 + enemy.random * 10) * waveHeight;
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(enemy.x + waveWidth/2, enemy.y + waveHeight);
+          ctx.lineTo(enemy.x - waveWidth/2, enemy.y + waveHeight);
+          ctx.closePath();
           ctx.fill();
           ctx.fillStyle = 'rgba(255,255,255,0.16)';
           ctx.beginPath();
-          ctx.arc(enemy.x + enemy.size * 0.18, enemy.y - enemy.size * 0.2, enemy.size * 0.25, 0, Math.PI * 2);
+          ctx.arc(enemy.x + enemy.size * 0.3, enemy.y - enemy.size * 0.1, enemy.size * 0.2, 0, Math.PI * 2);
           ctx.fill();
         }
       });
@@ -558,12 +659,12 @@
           state.life = Math.min(state.life + 1, 5);
           state.score += 50;
           state.ultCharge = Math.min(100, state.ultCharge + 22);
+          state.lastHealTime = state.elapsed;
           return false;
         }
         return true;
       });
       if (state.life <= 0) {
-        if (state.score > state.best) state.best = state.score;
         endGame();
       }
     }
@@ -583,6 +684,11 @@
       updatePlayer(delta);
       updateEntities(delta);
       checkCollisions();
+
+      // Decrease life if no green tool collected for 8 seconds
+      if (state.elapsed - state.lastHealTime > 8) {
+        state.life = Math.max(0, state.life - delta * 0.2); // Lose 0.2 life per second
+      }
 
       state.avoidTime += delta;
       if (state.avoidTime > 1) {
@@ -630,6 +736,7 @@
       resetGame();
     });
 
+    loadHighscores();
     updateUI();
   </script>
 </body>
