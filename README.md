@@ -1,2 +1,2 @@
 # vibecoding-xd
-Using this repo to learn live coding.
+Using this repo to learn vibecoding.
